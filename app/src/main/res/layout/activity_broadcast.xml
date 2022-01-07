@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="100dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/preview"
+            style="@style/style_main_btn"
+            android:layout_width="100dp"
+            android:background="@drawable/selector_press_main"
+            android:text="开启预览"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/start"
+            style="@style/style_main_btn"
+            android:layout_width="100dp"
+            android:background="@drawable/selector_press_main"
+            android:text="开启直播"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/stop"
+            style="@style/style_main_btn"
+            android:layout_width="100dp"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/selector_press_main"
+            android:text="关闭直播" />
+
+        <TextView
+            android:id="@+id/kickoutRoom"
+            style="@style/style_main_btn"
+            android:layout_width="100dp"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/selector_press_main"
+            android:text="踢出房间" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:id="@+id/invetate"
+            style="@style/style_main_btn"
+            android:layout_width="100dp"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/selector_press_main"
+            android:text="邀请上麦" />
+
+        <TextView
+            android:id="@+id/mix"
+            style="@style/style_main_btn"
+            android:layout_width="100dp"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/selector_press_main"
+            android:text="设置布局" />
+
+        <TextView
+            android:id="@+id/customer"
+            style="@style/style_main_btn"
+            android:layout_width="100dp"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/selector_press_main"
+            android:text="自定义布局" />
+
+    </LinearLayout>
+
+</FrameLayout>
