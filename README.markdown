@@ -13,15 +13,14 @@
 1. 安装APP启动登录页面 
 2. 填写一个符合11位进制的手机号，然后点击登录
 
-![(width=100](./assets/README-1641550807942.jpg)
-
+<img src="./assets/README-1641550807942.jpg" alt="图片替换文本" width="300"/>
 
 #### 首页
 
 1. 点击列表进入直播间以观众身份观看直播
 2. 点击 创建房间 开始直播
 
-![alt(height=300](./assets/README-1641550863555.jpg)
+<img src="./assets/README-1641550863555.jpg" alt="图片替换文本" width="300"/>
 
 #### 观众端
 
@@ -32,7 +31,7 @@
 5. 静音  取消静音
 6. 关闭视频 取消视频
 
-![alt(height=300](./assets/README-1641551010676.jpg)
+<img src="./assets/README-1641551010676.jpg" alt="图片替换文本" width="300"/>
 
 #### 主播端
 
@@ -49,7 +48,7 @@
    5. 开启视频
    6. 关闭视频
 
-![alt(height=300](./assets/README-1641551329324.jpg)
+<img src="./assets/README-1641551329324.jpg" alt="图片替换文本" width="300"/>
 
 7. 点击其他麦位
    1. 锁定麦位 
@@ -60,7 +59,7 @@
    6. 踢出房间
    7. 切换麦位
 
-![alt(height=300](./assets/README-1641551688948.jpg)
+<img src="./assets/README-1641551688948.jpg" alt="图片替换文本" width="300"/>
 
 
 
