@@ -1,15 +1,14 @@
 package cn.rongcloud.live;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-
-import androidx.recyclerview.widget.RecyclerView;
+import android.widget.TextView;
 
 import com.kit.cache.GsonUtil;
 import com.kit.utils.KToast;
@@ -28,16 +27,24 @@ import cn.rongcloud.liveroom.api.callback.RCLiveCallback;
 import cn.rongcloud.liveroom.api.error.RCLiveError;
 import cn.rongcloud.liveroom.api.model.RCLiveSeatInfo;
 import cn.rongcloud.liveroom.weight.RCLiveView;
+import cn.rongcloud.liveroom.weight.wrapper.RCLiveVideoWrapperView;
 import cn.rongcloud.oklib.LoadTag;
 import cn.rongcloud.oklib.OkApi;
 import cn.rongcloud.oklib.OkParams;
 import cn.rongcloud.oklib.WrapperCallBack;
 import cn.rongcloud.oklib.wrapper.Wrapper;
-import cn.rongcloud.quickdemo.R;;
+import cn.rongcloud.pk.RoomOwnerDialog;
+import cn.rongcloud.quickdemo.R;
 
+
+/**
+ * QuickDemo 视频直播 主播端
+ * TODO QuickDemo只做SDK API的用法演示，详细的业务流程可参考 RC_RTC开源项目，开源地址为 ：
+ * https://github.com/rongcloud/rongcloud-scene-android-demo
+ */
 public class BroadcastActivity extends Activity implements View.OnClickListener {
+
     String TAG = "BroadcastActivity";
-    FrameLayout contain;
     List<RCLiveMixType> mixTypes = Arrays.asList(RCLiveMixType.RCMixTypeOneToOne,
             RCLiveMixType.RCMixTypeOneToSix,
             RCLiveMixType.RCMixTypeGridTwo,
@@ -48,30 +55,111 @@ public class BroadcastActivity extends Activity implements View.OnClickListener 
     int index;
     int customer;
     int[] customerTypes = new int[]{QuickCustomerLayout.CUSTOMER_1V3, QuickCustomerLayout.CUSTOMER_1V4};
-    //便于测试 统一房间Id
-    private RecyclerView rl_accout;
     private RCLiveView liveView;
-    private String roomId;
+    private String roomId; //当前房间ID
+    private RoomOwnerDialog dialog;
+    private TextView tvMutePk;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_broadcast);
         roomId = getIntent().getStringExtra("roomId");
-        init();
+        initView();
+        initData();
     }
 
+
+    /**
+     * 初始化布局
+     */
+    private void initView() {
+        findViewById(R.id.stop).setOnClickListener(this);
+        findViewById(R.id.invite).setOnClickListener(this);
+        findViewById(R.id.mix).setOnClickListener(this);
+        findViewById(R.id.customer).setOnClickListener(this);
+        findViewById(R.id.kickoutRoom).setOnClickListener(this);
+        findViewById(R.id.beginPk).setOnClickListener(this::onClick);
+        findViewById(R.id.quitPk).setOnClickListener(this::onClick);
+        findViewById(R.id.cancelPk).setOnClickListener(this::onClick);
+        tvMutePk = findViewById(R.id.mutePk);
+        tvMutePk.setOnClickListener(this::onClick);
+    }
+
+    /**
+     * 初始化信息 打开相机等
+     */
+    private void initData() {
+        //设置覆盖布局提供者
+        RCLiveEngine.getInstance().setSeatViewProvider(new QuickProvider() {
+            @Override
+            public void onSeatClick(RCLiveSeatInfo seatInfo) {
+                ApiLiveDialogHelper.helper().showLiveSeatApiDialog(BroadcastActivity.this, seatInfo, true);
+            }
+        });
+        //设置直播房监听事件，具体的可以进去QuickListener看具体的监听
+        QuickListener.get().resister(this, true);
+        //打开相机，渲染到视图上
+        preview();
+        //设置自定义布局
+        RCLiveEngine.getInstance().setCustomerLayout(new QuickCustomerLayout());
+    }
+
+    /**
+     * 开始预览
+     */
+    private void preview() {
+        FrameLayout contain = findViewById(R.id.container);
+        RCLiveEngine.getInstance().prepare(new RCLiveCallback() {
+            @Override
+            public void onSuccess() {
+                liveView = RCLiveEngine.getInstance().preview();
+                FrameLayout.LayoutParams fl = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                fl.gravity = Gravity.CENTER;
+                if (null != liveView) {
+                    liveView.attachParent(contain, fl);
+                }
+                for (int i = 0; i < liveView.getChildCount(); i++) {
+                    View childAt = liveView.getChildAt(i);
+                    if (childAt instanceof RCLiveVideoWrapperView) {
+                        ((RCLiveVideoWrapperView) childAt).setOnTop();
+                    }
+                }
+                KToast.show("预览成功");
+                RCLiveEngine.getInstance().begin(roomId, new RCLiveCallback() {
+                    @Override
+                    public void onSuccess() {
+                        KToast.show("开播成功");
+                        changeUserRoom(roomId);
+                    }
+
+                    @Override
+                    public void onError(int i, RCLiveError rcLiveError) {
+                        KToast.show("开播失败" + rcLiveError.getMessage());
+                        finishLiveRoom();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(int code, RCLiveError error) {
+                KToast.show("预览失败：" + GsonUtil.obj2Json(error));
+            }
+        });
+    }
+
+    /**
+     * 点击事件
+     *
+     * @param view
+     */
     @Override
     public void onClick(View view) {
         int id = view.getId();
-        if (R.id.preview == id) {
-            preview();
-        } else if (R.id.start == id) {
-            start();
-        } else if (R.id.stop == id) {
-            stop();
-        } else if (R.id.invetate == id) {
-            invetate();
+        if (R.id.stop == id) {
+            finishLiveRoom();
+        } else if (R.id.invite == id) {
+            invite();
         } else if (R.id.mix == id) {
             index++;
             int i = index % 7;
@@ -90,116 +178,132 @@ public class BroadcastActivity extends Activity implements View.OnClickListener 
                     Logger.e(TAG, "setCustomerMixType:" + GsonUtil.obj2Json(error));
                 }
             });
-        }else if (R.id.kickoutRoom == id){
-            kickoutRoom();
+        } else if (R.id.kickoutRoom == id) {
+            kickOutRoom();
+        } else if (R.id.beginPk == id) {
+            beginPk();
+        } else if (R.id.cancelPk == id) {
+            cancelPk();
+        } else if (R.id.quitPk == id) {
+            quitPk();
+        } else if (R.id.mutePk == id) {
+            mutePk();
         }
     }
 
-    private void kickoutRoom() {
-        ApiLiveDialogHelper.helper().showSelectDialog(this, roomId,"选择踢出房间用户", new IResultBack<AccoutManager.Accout>() {
+    boolean isMute = true;
+
+    /**
+     * 对正在连麦的房间进行声音操作
+     */
+    private void mutePk() {
+        RCLiveEngine.getInstance().mutePKUser(isMute, new RCLiveCallback() {
+            @Override
+            public void onSuccess() {
+                EToast.showToast(isMute ? "静音成功" : "取消静音成功");
+                tvMutePk.setText(isMute ? "取消静音PK" : "静音Pk用户");
+                isMute = !isMute;
+            }
+
+            @Override
+            public void onError(int code, RCLiveError error) {
+                EToast.showToast(isMute ? "静音失败" : "取消静音失败");
+            }
+        });
+    }
+
+    /**
+     * 退出PK
+     */
+    private void quitPk() {
+        RCLiveEngine.getInstance().quitPK(new RCLiveCallback() {
+            @Override
+            public void onSuccess() {
+                EToast.showToast("退出PK成功");
+                LivePKHelper.releasePK();
+            }
+
+            @Override
+            public void onError(int code, RCLiveError error) {
+                EToast.showToast("退出PK失败");
+            }
+        });
+    }
+
+    /**
+     * 取消PK
+     */
+    private void cancelPk() {
+        LivePKHelper livePKHelper = LivePKHelper.getLivePKHelper();
+        if (livePKHelper != null && livePKHelper.inviteeRoomId != null && livePKHelper.inviteeId != null) {
+            RCLiveEngine.getInstance().cancelPKInvitation(livePKHelper.inviteeRoomId, livePKHelper.inviteeId, new RCLiveCallback() {
+                @Override
+                public void onSuccess() {
+                    EToast.showToast("撤销PK申请成功");
+                    LivePKHelper.releasePK();
+                }
+
+                @Override
+                public void onError(int code, RCLiveError error) {
+                    EToast.showToast("撤销PK申请失败");
+                }
+            });
+        }
+
+    }
+
+    /**
+     * 开始PK
+     */
+    private void beginPk() {
+        //获取可PK的人
+        dialog = new RoomOwnerDialog(this, new IResultBack<Boolean>() {
+            @Override
+            public void onResult(Boolean aBoolean) {
+                dialog.dismiss();
+            }
+        }).setOnCancelListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+
+            }
+        });
+        dialog.show();
+    }
+
+    /**
+     * 踢出房间
+     */
+    private void kickOutRoom() {
+        ApiLiveDialogHelper.helper().showSelectDialog(this, roomId, "选择踢出房间用户", new IResultBack<AccoutManager.Accout>() {
             @Override
             public void onResult(AccoutManager.Accout result) {
-                RCLiveEngine.getInstance().kickOutRoom(result.getUserId(),null);
+                RCLiveEngine.getInstance().kickOutRoom(result.getUserId(), null);
                 ApiLiveDialogHelper.helper().dismissDialog();
             }
-        }, false,SeatListFun.kick_out_room);
+        }, false, SeatListFun.kick_out_room);
     }
 
-    void init() {
-        contain = findViewById(R.id.container);
-        findViewById(R.id.preview).setOnClickListener(this);
-        findViewById(R.id.start).setOnClickListener(this);
-        findViewById(R.id.stop).setOnClickListener(this);
-        findViewById(R.id.invetate).setOnClickListener(this);
-        findViewById(R.id.mix).setOnClickListener(this);
-        findViewById(R.id.customer).setOnClickListener(this);
-        findViewById(R.id.kickoutRoom).setOnClickListener(this);
-        RCLiveEngine.getInstance().setCustomerLayout(new QuickCustomerLayout());
-        RCLiveEngine.getInstance().setSeatViewProvider(new QuickProvider() {
-            @Override
-            public void onSeatClick(RCLiveSeatInfo seatInfo) {
-                ApiLiveDialogHelper.helper().showLiveSeatApiDialog(BroadcastActivity.this, seatInfo, true);
-            }
-        });
-        QuickListener.get().resister(this, true);
-        preview();
-    }
-
-    void preview() {
-        RCLiveEngine.getInstance().prepare(new RCLiveCallback() {
-            @Override
-            public void onSuccess() {
-                liveView = RCLiveEngine.getInstance().preview();
-                FrameLayout.LayoutParams fl = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                fl.gravity = Gravity.CENTER;
-                if (null != liveView) {
-                    liveView.attachParent(contain, fl);
-                }
-                KToast.show("预览成功");
-                RCLiveEngine.getInstance().begin(roomId, new RCLiveCallback() {
-                    @Override
-                    public void onSuccess() {
-                        KToast.show("开播成功");
-                        changeUserRoom(roomId);
-                    }
-
-                    @Override
-                    public void onError(int i, RCLiveError rcLiveError) {
-                        KToast.show("开播失败"+rcLiveError.getMessage());
-                        destoryRoomByService(BroadcastActivity.this,roomId);
-                    }
-                });
-            }
-
-            @Override
-            public void onError(int code, RCLiveError error) {
-                KToast.show("预览失败：" + GsonUtil.obj2Json(error));
-            }
-        });
-    }
-
-    void start() {
-        ApiLiveDialogHelper.helper().showEditorDialog(this, "直播间ID", "开播", new IResultBack<String>() {
-            @Override
-            public void onResult(String result) {
-                if (TextUtils.isEmpty(result)) {
-                    KToast.show("房间ID不能为空");
-                    return;
-                }
-                RCLiveEngine.getInstance().begin(result, new ApiLiveDialogHelper.DefalutCallback("开播"));
-            }
-        });
-    }
-
-    void stop() {
-        RCLiveEngine.getInstance().finish(new RCLiveCallback() {
-            @Override
-            public void onSuccess() {
-                KToast.show("关播直播间成功");
-                destoryRoomByService(BroadcastActivity.this,roomId);
-            }
-
-            @Override
-            public void onError(int code, RCLiveError error) {
-                KToast.show("关播直播间失败:" + GsonUtil.obj2Json(error));
-            }
-        });
-    }
-
-    void invetate() {
-        ApiLiveDialogHelper.helper().showSelectDialog(this, roomId,"选择直播上麦", new IResultBack<AccoutManager.Accout>() {
+    /**
+     * 邀请上麦
+     */
+    void invite() {
+        ApiLiveDialogHelper.helper().showSelectDialog(this, roomId, "选择直播上麦", new IResultBack<AccoutManager.Accout>() {
             @Override
             public void onResult(AccoutManager.Accout result) {
                 RCLiveEngine.getInstance().getLinkManager().inviteLiveVideo(result.getUserId(), -1, new ApiLiveDialogHelper.DefalutCallback("邀请上麦"));
                 ApiLiveDialogHelper.helper().dismissDialog();
             }
-        }, false,SeatListFun.invite_enter_seat);
+        }, false, SeatListFun.invite_enter_seat);
     }
 
-
-    public void destoryRoomByService(Activity activity, String roomId) {
+    /**
+     * 销毁直播间
+     * TODO 因为SDK不具备真正意义的关闭房间，finish方法为过时方法，可以不调用，而直接调用API接口方法关闭房间
+     */
+    public void finishLiveRoom() {
         String url = Api.DELETE_ROOM.replace(Api.KEY_ROOM_ID, roomId);
-        LoadTag tag = new LoadTag(activity, "关闭房间...");
+        LoadTag tag = new LoadTag(this, "关闭房间...");
         tag.show();
         OkApi.get(url, null, new WrapperCallBack() {
             @Override
@@ -223,6 +327,10 @@ public class BroadcastActivity extends Activity implements View.OnClickListener 
         });
     }
 
+    /**
+     * 通过APi接口设置当前用户所在的房间，方便执行邀请上麦，PK等操作
+     * @param roomId
+     */
     public void changeUserRoom(String roomId) {
         HashMap<String, Object> params = new OkParams()
                 .add("roomId", roomId)

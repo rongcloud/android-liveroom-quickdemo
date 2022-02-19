@@ -2,6 +2,7 @@ package cn.rongcloud.live;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.view.View;
 
 import com.kit.utils.KToast;
@@ -18,8 +19,10 @@ import cn.rongcloud.liveroom.api.callback.RCLiveCallback;
 import cn.rongcloud.liveroom.api.callback.RCLiveResultCallback;
 import cn.rongcloud.liveroom.api.error.RCLiveError;
 import cn.rongcloud.liveroom.api.model.RCLiveSeatInfo;
+import cn.rongcloud.liveroom.api.model.RCLiveVideoPK;
 import cn.rongcloud.liveroom.api.model.RCLivevideoFinishReason;
 import cn.rongcloud.rtc.base.RCRTCVideoFrame;
+import io.rong.common.dlog.LogEntity;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 
@@ -52,6 +55,7 @@ public class QuickListener extends LiveListener {
         this.braodcast = braodcast;
         reference = new WeakReference(activity);
         RCLiveEngine.getInstance().setLiveEventListener(this);
+        RCLiveEngine.getInstance().setLivePKEventListener(this);
         RCLiveEngine.getInstance().getLinkManager().setLiveLinkListener(this);
         RCLiveEngine.getInstance().getSeatManager().setLiveSeatListener(this);
     }
@@ -276,7 +280,7 @@ public class QuickListener extends LiveListener {
                 reference.get().finish();
                 RCLiveEngine.getInstance().leaveRoom(null);
             }
-        },null);
+        }, null);
         dialog.show();
         Logger.e(TAG, "onRoomDestory:");
     }
@@ -313,5 +317,54 @@ public class QuickListener extends LiveListener {
 
     @Override
     public void release() {
+    }
+
+    @Override
+    public void onPKBegin(RCLiveVideoPK rcLiveVideoPK) {
+        Log.e(TAG, "onPKBegin: ");
+        KToast.show("PK开始");
+    }
+
+    @Override
+    public void onPKFinish() {
+        Log.e(TAG, "onPKFinish: ");
+        KToast.show("PK结束");
+    }
+
+    @Override
+    public void onReceivePKInvitation(String inviterRoomId, String inviterUserId) {
+        Log.e(TAG, "onReceivePKInvitation: ");
+        //收到PK邀请
+        ApiLiveDialogHelper.helper().showResponsePK(reference.get(), new ApiLiveDialogHelper.OnApiClickListener() {
+            @Override
+            public void onApiClick(View v, LiveFun fun) {
+                switch (fun) {
+                    case agree_pk:
+                        RCLiveEngine.getInstance().acceptPKInvitation(inviterRoomId, inviterUserId, null);
+                        break;
+                    default:
+                        RCLiveEngine.getInstance().rejectPKInvitation(inviterRoomId, inviterUserId, fun.getValue(), null);
+                        break;
+                }
+                ApiLiveDialogHelper.helper().dismissDialog();
+            }
+        });
+    }
+
+    @Override
+    public void onPKInvitationCanceled(String inviterRoomId, String inviterUserId) {
+        Log.e(TAG, "onPKInvitationCanceled: ");
+        EToast.showToast("PK邀请被撤销");
+        ApiLiveDialogHelper.helper().dismissDialog();
+    }
+
+    @Override
+    public void onAcceptPKInvitationFromRoom(String inviteeRoomId, String inviteeUserId) {
+        Log.e(TAG,"onAcceptPKInvitationFromRoom");
+    }
+
+    @Override
+    public void onRejectPKInvitationFromRoom(String inviteeRoomId, String inviteeUserId, String reason) {
+        KToast.show("对方拒绝PK，理由是:"+reason);
     }
 }

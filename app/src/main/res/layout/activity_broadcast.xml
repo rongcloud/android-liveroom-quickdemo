@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,57 +9,20 @@
         android:layout_height="match_parent" />
 
     <LinearLayout
+        android:id="@+id/view_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="100dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/preview"
-            style="@style/style_main_btn"
-            android:layout_width="100dp"
-            android:background="@drawable/selector_press_main"
-            android:text="开启预览"
-            android:visibility="gone"/>
-
-        <TextView
-            android:id="@+id/start"
-            style="@style/style_main_btn"
-            android:layout_width="100dp"
-            android:background="@drawable/selector_press_main"
-            android:text="开启直播"
-            android:visibility="gone"/>
-
-        <TextView
-            android:id="@+id/stop"
-            style="@style/style_main_btn"
-            android:layout_width="100dp"
-            android:layout_marginStart="20dp"
-            android:background="@drawable/selector_press_main"
-            android:text="关闭直播" />
-
-        <TextView
-            android:id="@+id/kickoutRoom"
-            style="@style/style_main_btn"
-            android:layout_width="100dp"
-            android:layout_marginStart="20dp"
-            android:background="@drawable/selector_press_main"
-            android:text="踢出房间" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:layout_marginBottom="20dp">
 
         <TextView
-            android:id="@+id/invetate"
+            android:id="@+id/invite"
             style="@style/style_main_btn"
             android:layout_width="100dp"
             android:layout_marginStart="20dp"
+            android:layout_marginTop="0dp"
             android:background="@drawable/selector_press_main"
             android:text="邀请上麦" />
 
@@ -68,6 +31,7 @@
             style="@style/style_main_btn"
             android:layout_width="100dp"
             android:layout_marginStart="20dp"
+            android:layout_marginTop="0dp"
             android:background="@drawable/selector_press_main"
             android:text="设置布局" />
 
@@ -76,9 +40,79 @@
             style="@style/style_main_btn"
             android:layout_width="100dp"
             android:layout_marginStart="20dp"
+            android:layout_marginTop="0dp"
             android:background="@drawable/selector_press_main"
             android:text="自定义布局" />
 
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/view_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_above="@+id/view_1"
+        android:layout_marginBottom="20dp">
 
-</FrameLayout>
+        <TextView
+            android:id="@+id/stop"
+            style="@style/style_main_btn"
+            android:layout_width="100dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="0dp"
+            android:background="@drawable/selector_press_main"
+            android:text="关闭直播" />
+
+        <TextView
+            android:id="@+id/kickoutRoom"
+            style="@style/style_main_btn"
+            android:layout_width="100dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="0dp"
+            android:background="@drawable/selector_press_main"
+            android:text="踢出房间" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/view_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_above="@+id/view_2"
+        android:layout_marginBottom="20dp">
+        <TextView
+            android:id="@+id/beginPk"
+            style="@style/style_main_btn"
+            android:layout_width="100dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/selector_press_main"
+            android:text="邀请PK" />
+        <TextView
+            android:id="@+id/quitPk"
+            style="@style/style_main_btn"
+            android:layout_width="100dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="0dp"
+            android:layout_toRightOf="@id/beginPk"
+            android:background="@drawable/selector_press_main"
+            android:text="退出PK" />
+        <TextView
+            android:id="@+id/cancelPk"
+            style="@style/style_main_btn"
+            android:layout_width="100dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginStart="20dp"
+            android:layout_toRightOf="@+id/quitPk"
+            android:background="@drawable/selector_press_main"
+            android:text="撤销PK邀请" />
+        <TextView
+            android:id="@+id/mutePk"
+            style="@style/style_main_btn"
+            android:layout_width="100dp"
+            android:layout_marginStart="20dp"
+            android:layout_below="@+id/quitPk"
+            android:background="@drawable/selector_press_main"
+            android:text="静音Pk用户" />
+
+    </RelativeLayout>
+</RelativeLayout>

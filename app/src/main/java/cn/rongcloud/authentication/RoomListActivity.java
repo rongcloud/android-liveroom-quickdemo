@@ -143,6 +143,8 @@ public class RoomListActivity extends AbsPermissionActivity {
                 Logger.e(TAG, "provideFromService: size = " + (null == rooms ? 0 : rooms.size()));
                 if (rooms != null && !rooms.isEmpty()) {
                     page++;
+                }else {
+                    return;
                 }
                 for (VoiceRoom room : rooms) {
                     if (null != room.getCreateUser()) {

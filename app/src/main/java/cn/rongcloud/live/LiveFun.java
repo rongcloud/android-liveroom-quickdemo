@@ -14,7 +14,14 @@ public enum LiveFun {
     live_seat_lock("锁定麦位"),
     live_seat_unlock("解锁麦位"),
     live_kick_out_room("踢出房间"),
-    live_switch_seat("切换麦位");
+    live_switch_seat("切换麦位"),
+
+    /**
+     * ==========PK==============
+     */
+    agree_pk("同意PK邀请"),
+    busy_pk("暂时不方便PK"),
+    reject_pk("不想PK");
     private String value;
 
     LiveFun(String value) {

@@ -18,15 +18,6 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/start"
-            style="@style/style_main_btn"
-            android:layout_width="wrap_content"
-            android:layout_marginStart="20dp"
-            android:background="@drawable/selector_press_main"
-            android:text="加入直播间"
-            android:visibility="gone" />
-
-        <TextView
             android:id="@+id/stop"
             style="@style/style_main_btn"
             android:layout_width="100dp"

@@ -40,20 +40,6 @@ import io.rong.imlib.RongIMClient;
 
 
 public class ApiLiveDialogHelper {
-//    public final static LiveFun[] Live_API = new LiveFun[]{
-//            LiveFun.seat_enter,
-//            LiveFun.seat_left,
-//            LiveFun.live_seat_lock,
-//            LiveFun.live_seat_unlock,
-//            LiveFun.live_seat_mute,
-//            LiveFun.live_seat_unmute,
-//            LiveFun.live_seat_audio_enable,
-//            LiveFun.live_seat_audio_unenable,
-//            LiveFun.live_seat_video_enable,
-//            LiveFun.live_seat_video_unenable,
-//            LiveFun.live_seat_video_unenable,
-//            LiveFun.kict_out_seat,
-//    };
     //主播点击他人麦位，可操作的API
     public final static LiveFun[] Broadcast_Click_OtherSeat_API = new LiveFun[]{
             LiveFun.live_seat_lock,
@@ -93,20 +79,20 @@ public class ApiLiveDialogHelper {
         return seatApi;
     }
 
-    public void showLiveSeatApiDialog(Activity activity, RCLiveSeatInfo seatInfo,boolean isBroadcast) {
+    public void showLiveSeatApiDialog(Activity activity, RCLiveSeatInfo seatInfo, boolean isBroadcast) {
         if (null == seatInfo) {
             return;
         }
         //点击的麦位，根据当前用户是否为主播 ，点击的是否是自己的麦位
         LiveFun[] Live_API;
-        if (isBroadcast){
+        if (isBroadcast) {
             if (TextUtils.equals(seatInfo.getUserId(), RongIMClient.getInstance().getCurrentUserId())) {
-                Live_API=Broadcast_Click_OwnerSeat_API;
-            }else {
-                Live_API=Broadcast_Click_OtherSeat_API;
+                Live_API = Broadcast_Click_OwnerSeat_API;
+            } else {
+                Live_API = Broadcast_Click_OtherSeat_API;
             }
-        }else {
-            Live_API=Audience_Click_OwnerSeat_API;
+        } else {
+            Live_API = Audience_Click_OwnerSeat_API;
         }
         showApiDialog(activity, "直播间麦位Api功能演示", Live_API, new OnApiClickListener() {
             @Override
@@ -150,6 +136,42 @@ public class ApiLiveDialogHelper {
         dialog.show();
     }
 
+    //回应PK邀请弹窗
+    public void showResponsePK(Activity activity,OnApiClickListener listener) {
+        if (null == dialog || !dialog.enable()) {
+            dialog = new QDialog(activity,
+                    new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            ApiLiveDialogHelper.this.dialog = null;
+                        }
+                    });
+        }
+        dialog.replaceContent("收到一个PK邀请",
+                "取消",
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dismissDialog();
+                    }
+                },
+                "",
+                null,
+                initResponsePkFun(listener)
+        );
+        dialog.show();
+    }
+
+    private View initResponsePkFun(OnApiClickListener listener) {
+        List<LiveFun> apiNames = Arrays.asList(LiveFun.agree_pk, LiveFun.busy_pk, LiveFun.reject_pk);
+        RecyclerView refresh = new RecyclerView(dialog.getContext());
+        refresh.setLayoutManager(new GridLayoutManager(dialog.getContext(), 2));
+        IAdapte adapter = new ApiAdapter(dialog.getContext(), listener);
+        adapter.setRefreshView(refresh);
+        adapter.setData(apiNames, true);
+        return refresh;
+    }
+
     private View initApiFunView(LiveFun[] apiNames, OnApiClickListener listener) {
         RecyclerView refresh = new RecyclerView(dialog.getContext());
         refresh.setLayoutManager(new GridLayoutManager(dialog.getContext(), 2));
@@ -188,13 +210,13 @@ public class ApiLiveDialogHelper {
                 return;
             }
             RCLiveEngine.getInstance().kickOutSeat(seatInfo.getUserId(), new DefalutCallback("抱下麦"));
-        } else if (LiveFun.live_kick_out_room ==fun){
+        } else if (LiveFun.live_kick_out_room == fun) {
             if (TextUtils.isEmpty(seatInfo.getUserId())) {
                 KToast.show("该麦位没有主播");
                 return;
             }
             RCLiveEngine.getInstance().kickOutRoom(seatInfo.getUserId(), new DefalutCallback("踢出房间"));
-        } else if (LiveFun.live_switch_seat ==fun){
+        } else if (LiveFun.live_switch_seat == fun) {
             if (!TextUtils.isEmpty(seatInfo.getUserId())) {
                 KToast.show("该麦位已经有主播");
                 return;
@@ -336,7 +358,7 @@ public class ApiLiveDialogHelper {
      * @param resultBack
      */
     public void showSelectDialog(Activity activity,
-                                 String roomId,String title, IResultBack<AccoutManager.Accout> resultBack, boolean all,SeatListFun seatListFun) {
+                                 String roomId, String title, IResultBack<AccoutManager.Accout> resultBack, boolean all, SeatListFun seatListFun) {
         if (null == dialog || !dialog.enable()) {
             dialog = new QDialog(activity,
                     new DialogInterface.OnDismissListener() {
@@ -364,7 +386,7 @@ public class ApiLiveDialogHelper {
         if (all) {
             adapter.setData(AccoutManager.getAccounts(), true);
         } else {
-            switch (seatListFun){
+            switch (seatListFun) {
                 case kick_out_room:
                     List<AccoutManager.Accout> inRooms = new ArrayList<>();
                     OkApi.get(getMembers(roomId), null, new WrapperCallBack() {
@@ -374,7 +396,7 @@ public class ApiLiveDialogHelper {
                                 List<User> list = result.getList(User.class);
                                 for (User user : list) {
                                     String userId = user.getUserId();
-                                    if (!userId.equals(AccoutManager.getCurrentId())){
+                                    if (!userId.equals(AccoutManager.getCurrentId())) {
                                         AccoutManager.Accout accout = new AccoutManager.Accout(userId, user.getUserName());
                                         inRooms.add(accout);
                                     }
@@ -393,7 +415,7 @@ public class ApiLiveDialogHelper {
                                 List<User> list = result.getList(User.class);
                                 for (User user : list) {
                                     String userId = user.getUserId();
-                                    if (!userId.equals(AccoutManager.getCurrentId())&&!SeatManager.get().getInSeatUserIds().contains(userId)){
+                                    if (!userId.equals(AccoutManager.getCurrentId()) && !SeatManager.get().getInSeatUserIds().contains(userId)) {
                                         AccoutManager.Accout accout = new AccoutManager.Accout(userId, user.getUserName());
                                         onlines.add(accout);
                                     }

@@ -16,7 +16,7 @@
         android:layout_marginBottom="20px"
         android:gravity="center"
         android:text="在线房主"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/rcy_owner"
         app:layout_constraintEnd_toEndOf="parent"
