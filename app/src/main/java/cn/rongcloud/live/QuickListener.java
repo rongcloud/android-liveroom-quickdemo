@@ -21,8 +21,8 @@ import cn.rongcloud.liveroom.api.error.RCLiveError;
 import cn.rongcloud.liveroom.api.model.RCLiveSeatInfo;
 import cn.rongcloud.liveroom.api.model.RCLiveVideoPK;
 import cn.rongcloud.liveroom.api.model.RCLivevideoFinishReason;
+import cn.rongcloud.rtc.api.RCRTCConfig;
 import cn.rongcloud.rtc.base.RCRTCVideoFrame;
-import io.rong.common.dlog.LogEntity;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 
@@ -258,6 +258,11 @@ public class QuickListener extends LiveListener {
     @Override
     public void onOutputSampleBuffer(RCRTCVideoFrame frame) {
 //        Logger.e(TAG, "onOutputSampleBuffer:");
+    }
+
+    @Override
+    public RCRTCConfig.Builder onInitRCRTCConfig(RCRTCConfig.Builder builder) {
+        return null;
     }
 
     @Override

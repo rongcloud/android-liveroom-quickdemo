@@ -319,6 +319,8 @@ public class BroadcastActivity extends Activity implements View.OnClickListener 
                 if (wrapper.ok()) {
                     KToast.show("关闭房间成功");
                     BroadcastActivity.this.finish();
+                    //TODO 释放掉资源 一定记得在结束直播释放掉所有资源
+                    RCLiveEngine.getInstance().unPrepare(null);
                     changeUserRoom("");
                 } else {
                     KToast.show("关闭房间失败");

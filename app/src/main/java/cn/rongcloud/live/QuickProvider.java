@@ -19,9 +19,6 @@ public class QuickProvider implements SeatViewProvider {
 
     @Override
     public View provideSeatView(RCLiveSeatInfo seatInfo, RCParamter rcParamter) {
-        if (!TextUtils.isEmpty(seatInfo.getUserId())){
-            return null;
-        }
         View view = inflate(seatInfo, rcParamter);
         view.setOnClickListener(new View.OnClickListener() {
             @Override

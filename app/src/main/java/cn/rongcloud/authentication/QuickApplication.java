@@ -23,7 +23,7 @@ import okhttp3.Headers;
 public class QuickApplication extends Application {
     private final static String TAG = "QuickApplication";
     private final static String APP_KEY = "pvxdm17jpw7ar";
-    private final static String Business_Token = "vStHYPdrQoImm-7Ur0ks1g";
+    private final static String Business_Token = "这里是测试服务器token，需要申请https://rcrtc-api.rongcloud.net/code";
 
     @Override
     public void onCreate() {

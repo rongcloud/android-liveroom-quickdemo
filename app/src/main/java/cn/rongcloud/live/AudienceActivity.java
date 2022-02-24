@@ -56,7 +56,6 @@ public class AudienceActivity extends AppCompatActivity implements View.OnClickL
 
     private void init() {
         contain = findViewById(R.id.container);
-        findViewById(R.id.start).setOnClickListener(this);
         findViewById(R.id.stop).setOnClickListener(this);
         findViewById(R.id.cancelRequest).setOnClickListener(this);
         tvRequest = findViewById(R.id.request);

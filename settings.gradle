@@ -8,3 +8,11 @@
 //}
 rootProject.name = "LiveRoomQuickDemo"
 include ':app'
+Properties properties = new Properties()
+File propertyFile = new File(rootDir.getAbsolutePath() + "/local.properties")
+properties.load(propertyFile.newDataInputStream())
+if (!(properties.get("REMOTE_DEPENDENCE").toBoolean())) {
+    println("------------------>>>>load local sdk module")
+    include ':RCliveroom'
+    project(':RCliveroom').projectDir = new File("${properties.get("LIVE_ROOM_SDK_DIR")}/liveroom")
+}
